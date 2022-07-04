@@ -1,7 +1,9 @@
-//
-// https://www.youtube.com/watch?v=LtXEMwSG5-8
-// https://www.youtube.com/watch?v=DboEGcU6rLI&list=PLPyaR5G9aNDvs6TtdpLcVO43_jvxp4emI&index=6
-//
+/******************************************************
+ *        Operating Systems Final Project               *
+ *      Vitor Rodrigues Jacinto  0327000633           *
+ *              A.A 2021/2022                         *
+ *      Prof Luigi Romano & Giovanni Mazzeo           *
+*******************************************************/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -15,7 +17,7 @@
 #define MAX 256
 
 char* readFile(char* filename, char str[]);
-void saveFile(char str[]);
+void saveFile(char str[], char filename[], char option);
 
 
 int main(int argc, char *argv[]){
@@ -47,12 +49,14 @@ int main(int argc, char *argv[]){
 
     printf("\n\n=========================== CLIENT ==================================\n\n");
 
-    char buffer[MAX];                           
+    char buffer[MAX];
+
     read(sock, &buffer, MAX);   
     printf("%s", buffer);    
 
     sleep(1);
     fgets(buffer, MAX, stdin);
+    char option = buffer[0];
     write(sock, buffer, MAX);
 
     sleep(1);
@@ -66,7 +70,8 @@ int main(int argc, char *argv[]){
         close(sock);
         exit(1);
     }
-    saveFile(buffer);
+    
+    saveFile(buffer, argv[1], option);
 
     printf("\n\n=====================================================================\n\n");
     
@@ -86,15 +91,31 @@ char* readFile(char* filename, char str[]){
     return str;
 }
 
-void saveFile(char str[]){
+void saveFile(char str[], char filename[], char option){
 
-    char fileName[24] = "mynewfile.txt";
+    char newFilename[50];
+    int i = 0;
+
+    while(filename[i] != '.'){
+        newFilename[i] = filename[i];
+        i++;
+    }
+
+    switch (option){
+    case '1':
+        strcat(newFilename, "Compressed.txt");
+        break;
+    
+    case '2':
+        strcat(newFilename, "Decompressed.txt");
+        break;
+    }
 
     FILE *file_out;
-    file_out = fopen(fileName, "w");
+    file_out = fopen(newFilename, "w");
     fputs(str, file_out);
     fclose(file_out);
 
-    printf("\n%s\n\nsaved on %s", str, fileName); 
+    printf("\n%s\n\nsaved on %s", str, newFilename); 
 
 }

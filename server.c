@@ -1,3 +1,10 @@
+/******************************************************
+ *        Operating Systems Final Project             *
+ *      Vitor Rodrigues Jacinto  0327000633           *
+ *              A.A 2021/2022                         *
+ *      Prof Luigi Romano & Giovanni Mazzeo           *
+*******************************************************/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -9,13 +16,15 @@
 
 #define MAX 256
 
-char strCompressed1[MAX];
-char strCompressed2[MAX];
+char str1[MAX];
+char str2[MAX];
 
 void compression(char buffer[], int sock, int client_socket);
     void* compressFirstHalf(char str[]);
     void* compressSecondHalf(char str[]);
 void decompression(char buffer[], int sock, int client_socket);
+    void* decompressFirstHalf(char str[]);
+    void* decompressSecondHalf(char str[]);
     
 
 int main(){
@@ -39,8 +48,6 @@ int main(){
     int client_socket = accept(sock, NULL, NULL  ); // We accept and now we are able to send and receive data, the second parameter is our client socket
 
 
-
-
     // RECEIVING AND SENDING DATA TO CLIENT
     char server_message[MAX] = "You have reached the server. Please, press\n 1. Compression\n 2. Decompression\n\nOption: ";
     write(client_socket, server_message, MAX);
@@ -50,6 +57,9 @@ int main(){
     
     read(client_socket, buffer, MAX);
 
+
+
+    // COMPRESSING OR DECOMPRESSING FILES
     if(option == '1'){
         compression(buffer, sock, client_socket);
 
@@ -60,10 +70,8 @@ int main(){
     else{
         char errorMessage[MAX] = "Error";
         write(client_socket, errorMessage, MAX);
-
         close(client_socket);
         close(sock);
-
         exit(1);
     }
 
@@ -72,6 +80,7 @@ int main(){
 }
 
 
+// RLE COMPRESSION
 
 void compression(char buffer[], int sock, int client_socket){
 
@@ -86,12 +95,12 @@ void compression(char buffer[], int sock, int client_socket){
     pthread_join(thread1, NULL);    
     pthread_join(thread2, NULL);   
 
-    strcat(strCompressed1, strCompressed2);
-    printf("%s", strCompressed1);
+    strcat(str1, str2);
+    printf("%s", str1);
     printf("\n\n=====================================================================\n\n");
 
     sleep(1);
-    write(client_socket, strCompressed1, MAX);
+    write(client_socket, str1, MAX);
 
     close(client_socket);
     close(sock);
@@ -110,21 +119,21 @@ void* compressFirstHalf(char str[]){
             count++;
         }    
         else{
-            strCompressed1[j] = currentChar;
+            str1[j] = currentChar;
             j++;
-            strCompressed1[j] = '0' + count ;
+            str1[j] = '0' + count ;
             j++;
 
             currentChar = str[i];
             count = 1;
         }
     }
-    strCompressed1[j] = currentChar;
+    str1[j] = currentChar;
     j++;
-    strCompressed1[j] = '0' + count ;
+    str1[j] = '0' + count ;
 
 
-    return strCompressed1;
+    return str1;
     pthread_exit(NULL);
 
 }
@@ -140,52 +149,86 @@ void* compressSecondHalf(char str[]){
             count++;
         }    
         else{
-            strCompressed2[j] = currentChar;
+            str2[j] = currentChar;
             j++;
-            strCompressed2[j] = '0' + count;
+            str2[j] = '0' + count;
             j++;
 
             currentChar = str[i];
             count = 1;
         }
     }
-    strCompressed2[j] = currentChar;
+    str2[j] = currentChar;
     j++;
-    strCompressed2[j] = '0' + count ;
+    str2[j] = '0' + count ;
     
-    return strCompressed2;
+    return str2;
     pthread_exit(NULL);
 
 }
 
+// RLE DECOMPRESSION 
 void decompression(char buffer[], int sock, int client_socket){
 
-    printf("\n=============================================================\n\n");
     printf("The string has been received. \n\n%s\n\nStarting decompression...\n\n", buffer);
     sleep(1);
 
-    char strDecompressed[MAX];
+    pthread_t thread1, thread2;
+
+    pthread_create(&thread1, NULL, &decompressFirstHalf, buffer);
+    pthread_create(&thread2, NULL, &decompressSecondHalf, buffer);
+
+    pthread_join(thread1, NULL);    
+    pthread_join(thread2, NULL);   
+
+    strcat(str1, str2);
+    printf("%s", str1);
+    printf("\n\n=====================================================================\n\n");
+
+    sleep(1);
+    write(client_socket, str1, MAX);
+
+    close(client_socket);
+    close(sock);
+
+}
+
+void* decompressFirstHalf(char buffer[]){
+
     int n = strlen(buffer);
     int index = 0;
 
-    for(int i = 0; i<(n-1); i=i+2){
+    for(int i = 0; i<(n-1)/2; i=i+2){
+        
+        int count = buffer[i+1] - '0';
+
+        for(int j = index; j < (index+count); j++){
+            str1[j] = buffer[i];
+        }
+        index = index + count; 
+    }
+
+    return str1;
+    pthread_exit(NULL);
+
+}
+
+void* decompressSecondHalf(char buffer[]){
+
+    int n = strlen(buffer);
+    int index = 0;
+
+    for(int i = (n-1)/2; i<n; i=i+2){
         
         int count = buffer[i+1] - '0';
 
         for(int j = index; j<(index+count); j++){
-            strDecompressed[j] = buffer[i];
+            str2[j] = buffer[i];
 
         }
         index = index + count;
     }
 
-
-    printf("%s", strDecompressed);
-    printf("\n\n=============================================================\n\n");
-
-    sleep(1);
-    write(client_socket, strDecompressed, MAX);
-
-    close(client_socket);
-    close(sock);
+    return str2;
+    pthread_exit(NULL);
 }

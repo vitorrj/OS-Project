@@ -9,8 +9,8 @@
 void* compressFirstHalf(char str[]);
 void* compressSecondHalf(char str[]);
 
-char strCompressed1[MAX];
-char strCompressed2[MAX];
+char str1[MAX];
+char str2[MAX];
 
 int main(){
     
@@ -24,11 +24,11 @@ int main(){
     pthread_join(thread1, NULL);    
     pthread_join(thread2, NULL);  
 
-    strcat(strCompressed1, strCompressed2);
+    strcat(str1, str2);
 
 
 
-    printf("%s", strCompressed1);
+    printf("%s", str1);
 }
 
 void* compressFirstHalf(char str[]){
@@ -42,21 +42,21 @@ void* compressFirstHalf(char str[]){
             count++;
         }    
         else{
-            strCompressed1[j] = currentChar;
+            str1[j] = currentChar;
             j++;
-            strCompressed1[j] = '0' + count ;
+            str1[j] = '0' + count ;
             j++;
 
             currentChar = str[i];
             count = 1;
         }
     }
-    strCompressed1[j] = currentChar;
+    str1[j] = currentChar;
     j++;
-    strCompressed1[j] = '0' + count ;
+    str1[j] = '0' + count ;
 
 
-    return strCompressed1;
+    return str1;
     pthread_exit(NULL);
 
 }
@@ -72,20 +72,20 @@ void* compressSecondHalf(char str[]){
             count++;
         }    
         else{
-            strCompressed2[j] = currentChar;
+            str2[j] = currentChar;
             j++;
-            strCompressed2[j] = '0' + count;
+            str2[j] = '0' + count;
             j++;
 
             currentChar = str[i];
             count = 1;
         }
     }
-    strCompressed2[j] = currentChar;
+    str2[j] = currentChar;
     j++;
-    strCompressed2[j] = '0' + count ;
+    str2[j] = '0' + count ;
     
-    return strCompressed2;
+    return str2;
     pthread_exit(NULL);
 
 }
