@@ -1,14 +1,23 @@
 #include <stdio.h>
 #include <string.h>
 
-int main(){
+void decompression(char str[]);
 
+
+int main(){
+    
     char str[10] = "a4b3c6d2";
+
+    decompression(str);
+
+}
+
+
+void decompression(char str[]){
+
     char strUncompressed[50];
     
     int n = strlen(str);
-    printf("%d", n);
-
     int index = 0;
 
     for(int i = 0; i<(n-1); i=i+2){

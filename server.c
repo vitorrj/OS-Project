@@ -9,11 +9,14 @@
 
 #define MAX 256
 
-void* compressFirstHalf(char str[]);
-void* compressSecondHalf(char str[]);
-
 char strCompressed1[MAX];
 char strCompressed2[MAX];
+
+void compression(char buffer[], int sock, int client_socket);
+    void* compressFirstHalf(char str[]);
+    void* compressSecondHalf(char str[]);
+void decompression(char buffer[], int sock, int client_socket);
+    
 
 int main(){
     
@@ -28,21 +31,51 @@ int main(){
     server_address.sin_addr.s_addr = INADDR_ANY;
 
     bind(sock, (struct sockaddr*)&server_address, sizeof(server_address));
+
+    printf("\n============================ SERVER =================================\n\n");
    
     listen(sock, 5);  // Server socket, how many clients can I have?
     
     int client_socket = accept(sock, NULL, NULL  ); // We accept and now we are able to send and receive data, the second parameter is our client socket
 
 
+
+
     // RECEIVING AND SENDING DATA TO CLIENT
-    char server_message[MAX] = "You have reached the server. Starting compression...\n";
+    char server_message[MAX] = "You have reached the server. Please, press\n 1. Compression\n 2. Decompression\n\nOption: ";
     write(client_socket, server_message, MAX);
 
-    sleep(1);
     read(client_socket, buffer, MAX);
-    printf("\n=============================================================\n\n");
-    printf("The string has been received. \n\n%s\n\nStarting compression...\n\n", buffer);
+    char option = buffer[0];
+    
+    read(client_socket, buffer, MAX);
 
+    if(option == '1'){
+        compression(buffer, sock, client_socket);
+
+    }
+    else if(option == '2'){
+        decompression(buffer, sock, client_socket);
+    }
+    else{
+        char errorMessage[MAX] = "Error";
+        write(client_socket, errorMessage, MAX);
+
+        close(client_socket);
+        close(sock);
+
+        exit(1);
+    }
+
+
+    return 0;
+}
+
+
+
+void compression(char buffer[], int sock, int client_socket){
+
+    printf("The string has been received. \n\n%s\n\nStarting compression...\n\n", buffer);
     sleep(1);
 
     pthread_t thread1, thread2;
@@ -55,8 +88,7 @@ int main(){
 
     strcat(strCompressed1, strCompressed2);
     printf("%s", strCompressed1);
-
-    printf("\n\n=============================================================\n\n");
+    printf("\n\n=====================================================================\n\n");
 
     sleep(1);
     write(client_socket, strCompressed1, MAX);
@@ -64,10 +96,7 @@ int main(){
     close(client_socket);
     close(sock);
 
-
-    return 0;
 }
-
 
 
 void* compressFirstHalf(char str[]){
@@ -127,4 +156,36 @@ void* compressSecondHalf(char str[]){
     return strCompressed2;
     pthread_exit(NULL);
 
+}
+
+void decompression(char buffer[], int sock, int client_socket){
+
+    printf("\n=============================================================\n\n");
+    printf("The string has been received. \n\n%s\n\nStarting decompression...\n\n", buffer);
+    sleep(1);
+
+    char strDecompressed[MAX];
+    int n = strlen(buffer);
+    int index = 0;
+
+    for(int i = 0; i<(n-1); i=i+2){
+        
+        int count = buffer[i+1] - '0';
+
+        for(int j = index; j<(index+count); j++){
+            strDecompressed[j] = buffer[i];
+
+        }
+        index = index + count;
+    }
+
+
+    printf("%s", strDecompressed);
+    printf("\n\n=============================================================\n\n");
+
+    sleep(1);
+    write(client_socket, strDecompressed, MAX);
+
+    close(client_socket);
+    close(sock);
 }

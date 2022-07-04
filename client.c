@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <string.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -44,20 +45,30 @@ int main(int argc, char *argv[]){
 
     // RECEIVING AND SENDING DATA FROM SERVER
 
-    printf("\n\n=============================================================\n\n");
+    printf("\n\n=========================== CLIENT ==================================\n\n");
 
     char buffer[MAX];                           
     read(sock, &buffer, MAX);   
-    printf("%s", buffer);                      
+    printf("%s", buffer);    
+
+    sleep(1);
+    fgets(buffer, MAX, stdin);
+    write(sock, buffer, MAX);
 
     sleep(1);
     write(sock, str, MAX);
 
     sleep(1);
-    read(sock, &buffer, MAX);                
+    read(sock, &buffer, MAX);             
+    
+    if (strcmp(buffer,"Error")==0){
+        printf("\nOperation not valid, Aborting...\n\n");
+        close(sock);
+        exit(1);
+    }
     saveFile(buffer);
 
-    printf("\n\n=============================================================\n\n");
+    printf("\n\n=====================================================================\n\n");
     
     close(sock);
 
@@ -77,7 +88,7 @@ char* readFile(char* filename, char str[]){
 
 void saveFile(char str[]){
 
-    char fileName[24] = "myFileCompressed.txt";
+    char fileName[24] = "mynewfile.txt";
 
     FILE *file_out;
     file_out = fopen(fileName, "w");
