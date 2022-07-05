@@ -1,5 +1,5 @@
 /******************************************************
- *        Operating Systems Final Project               *
+ *        Operating Systems Final Project             *
  *      Vitor Rodrigues Jacinto  0327000633           *
  *              A.A 2021/2022                         *
  *      Prof Luigi Romano & Giovanni Mazzeo           *
@@ -32,14 +32,14 @@ int main(int argc, char *argv[]){
     readFile(argv[1], str);
     
     // CREATING SOCKET AND SETTING UP ITS PARAMETERS
-    int sock = socket(AF_INET, SOCK_STREAM, 0 );  // CREATE A TCP
+    int sock = socket(AF_INET, SOCK_STREAM, 0 );  
 
     struct sockaddr_in server_address;
-    server_address.sin_family = AF_INET;         // Which type of address are we connecting to? 
-    server_address.sin_port   = htons(9002);     // Define the port and the translates to our struct with htons
-    server_address.sin_addr.s_addr = INADDR_ANY; // Connecting to myself at ip 0.0.0.
+    server_address.sin_family = AF_INET;        
+    server_address.sin_port   = htons(9002);    
+    server_address.sin_addr.s_addr = INADDR_ANY;
 
-    int connection_status = connect(sock, (struct sockaddr *)&server_address, sizeof(server_address));  // It returns an integer that will let us know if the the connection has been succesful (0) or (1) failed
+    int connection_status = connect(sock, (struct sockaddr *)&server_address, sizeof(server_address));  
 
     if (connection_status == -1 ){
         printf("There was an error connecting to the remote socket \n\n");

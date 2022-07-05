@@ -20,11 +20,11 @@ char str1[MAX];
 char str2[MAX];
 
 void compression(char buffer[], int sock, int client_socket);
-    void* compressFirstHalf(char str[]);
-    void* compressSecondHalf(char str[]);
+    void* compressFirstHalf(void* buffer);
+    void* compressSecondHalf(void* buffer);
 void decompression(char buffer[], int sock, int client_socket);
-    void* decompressFirstHalf(char str[]);
-    void* decompressSecondHalf(char str[]);
+    void* decompressFirstHalf(void *buffer);
+    void* decompressSecondHalf(void *buffer);
     
 
 int main(){
@@ -46,7 +46,6 @@ int main(){
     listen(sock, 5);  // Server socket, how many clients can I have?
     
     int client_socket = accept(sock, NULL, NULL  ); // We accept and now we are able to send and receive data, the second parameter is our client socket
-
 
     // RECEIVING AND SENDING DATA TO CLIENT
     char server_message[MAX] = "You have reached the server. Please, press\n 1. Compression\n 2. Decompression\n\nOption: ";
@@ -89,8 +88,8 @@ void compression(char buffer[], int sock, int client_socket){
 
     pthread_t thread1, thread2;
 
-    pthread_create(&thread1, NULL, &compressFirstHalf, buffer);
-    pthread_create(&thread2, NULL, &compressSecondHalf, buffer);
+    pthread_create(&thread1, NULL, &compressFirstHalf, (void*)buffer);
+    pthread_create(&thread2, NULL, &compressSecondHalf, (void*)buffer);
 
     pthread_join(thread1, NULL);    
     pthread_join(thread2, NULL);   
@@ -108,7 +107,9 @@ void compression(char buffer[], int sock, int client_socket){
 }
 
 
-void* compressFirstHalf(char str[]){
+void* compressFirstHalf(void* buffer){
+
+    char *str = buffer;
 
     char currentChar = str[0];
     int count = 1;
@@ -138,7 +139,9 @@ void* compressFirstHalf(char str[]){
 
 }
 
-void* compressSecondHalf(char str[]){
+void* compressSecondHalf(void* buffer){
+
+    char *str = buffer;
 
     char currentChar = str[0];
     int count = 1;
@@ -193,17 +196,19 @@ void decompression(char buffer[], int sock, int client_socket){
 
 }
 
-void* decompressFirstHalf(char buffer[]){
+void* decompressFirstHalf(void *buffer){
+
+    char *str = buffer;
 
     int n = strlen(buffer);
     int index = 0;
 
     for(int i = 0; i<(n-1)/2; i=i+2){
         
-        int count = buffer[i+1] - '0';
+        int count = str[i+1] - '0';
 
         for(int j = index; j < (index+count); j++){
-            str1[j] = buffer[i];
+            str1[j] = str[i];
         }
         index = index + count; 
     }
@@ -213,17 +218,19 @@ void* decompressFirstHalf(char buffer[]){
 
 }
 
-void* decompressSecondHalf(char buffer[]){
+void* decompressSecondHalf(void* buffer){
+
+    char *str = buffer;
 
     int n = strlen(buffer);
     int index = 0;
 
     for(int i = (n-1)/2; i<n; i=i+2){
         
-        int count = buffer[i+1] - '0';
+        int count = str[i+1] - '0';
 
         for(int j = index; j<(index+count); j++){
-            str2[j] = buffer[i];
+            str2[j] = str[i];
 
         }
         index = index + count;
