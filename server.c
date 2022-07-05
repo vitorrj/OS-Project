@@ -178,8 +178,8 @@ void decompression(char buffer[], int sock, int client_socket){
 
     pthread_t thread1, thread2;
 
-    pthread_create(&thread1, NULL, &decompressFirstHalf, buffer);
-    pthread_create(&thread2, NULL, &decompressSecondHalf, buffer);
+    pthread_create(&thread1, NULL, decompressFirstHalf, buffer);
+    pthread_create(&thread2, NULL, decompressSecondHalf, buffer);
 
     pthread_join(thread1, NULL);    
     pthread_join(thread2, NULL);   
