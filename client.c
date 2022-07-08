@@ -43,6 +43,7 @@ int main(int argc, char *argv[]){
 
     if (connection_status == -1 ){
         printf("There was an error connecting to the remote socket \n\n");
+        exit(1);
     }
 
     // RECEIVING AND SENDING DATA FROM SERVER

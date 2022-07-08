@@ -96,9 +96,11 @@ void compression(char buffer[], int sock, int client_socket){
 
     strcat(str1, str2);
     printf("%s", str1);
+    
+    int sparedBytes = (strlen(str1) * 100)/strlen(buffer);
+    printf("\n\nwas reduced by %d%% from %lu bytes to %lu bytes", sparedBytes, strlen(buffer), strlen(str1));
     printf("\n\n=====================================================================\n\n");
 
-    sleep(1);
     write(client_socket, str1, MAX);
 
     close(client_socket);
@@ -178,8 +180,8 @@ void decompression(char buffer[], int sock, int client_socket){
 
     pthread_t thread1, thread2;
 
-    pthread_create(&thread1, NULL, decompressFirstHalf, buffer);
-    pthread_create(&thread2, NULL, decompressSecondHalf, buffer);
+    pthread_create(&thread1, NULL, &decompressFirstHalf, (void*)buffer);
+    pthread_create(&thread2, NULL, &decompressSecondHalf, (void*)buffer);
 
     pthread_join(thread1, NULL);    
     pthread_join(thread2, NULL);   
