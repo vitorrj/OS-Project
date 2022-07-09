@@ -4,29 +4,23 @@
 #include <unistd.h>
 #include <pthread.h>
 
-#define MAX 256
+#define MAX 81900
 
 char str1[MAX];
 char str2[MAX];
 
-void compression(char buffer[]);
-    void* compressFirstHalf(void* str);
-    void* compressSecondHalf(void* str);
+void* compressFirstHalf(void* str);
+void* compressSecondHalf(void* str);
     
 
 int main(){
     
-    char buffer[MAX] = "aaaaaaaabbbbbbbbccccccddddeeeeeefffffggggghhhzzzppplllqqqquuuoooxxxxmmmcccjjkkkkaaaaauuuuuwwwwwpppplllmmmnnnbbbvvvjhhhhaaaaccccpppoooaaakkkaaaqqqqbbbccccccccrrrrrrwwwwwuuuuaaaazzzzbbbdddhhhhjjjjqqqquuueeeetttzzzzzuuubbbaaaaapppqqqqquutttttiiiiwwwwbbbbccc";
-    compression(buffer);
+    char buffer[MAX];
 
-    strcat(str1, str2);
-    printf("%s", str1);
-}
-
-
-// RLE COMPRESSION
-
-void compression(char buffer[]){
+    FILE *file_in;
+	file_in = fopen("stringa.txt", "r");
+	fscanf(file_in,"%s", buffer);
+    fclose(file_in);
 
     pthread_t thread1, thread2;
 
@@ -36,9 +30,10 @@ void compression(char buffer[]){
     pthread_join(thread1, NULL);    
     pthread_join(thread2, NULL);   
 
-
-
+    strcat(str1, str2);
+    printf("%s", str1);
 }
+
 
 
 void* compressFirstHalf(void* buffer){

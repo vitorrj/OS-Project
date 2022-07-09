@@ -1,11 +1,16 @@
 #include <stdio.h>
 #include <stdlib.h>
-#define MAX 256
+#define MAX 81900
 
 int main(){
     
-    char str[MAX]       = "aaaaaaaabbbbbbbbccccccddddeeeeeefffffggggghhhzzzppplllqqqquuuoooxxxxmmmcccjjkkkkaaaaauuuuuwwwwwpppplllmmmnnnbbbvvvjhhhhaaaaccccpppoooaaakkkaaaqqqqbbbccccccccrrrrrrwwwwwuuuuaaaazzzzbbbdddhhhhjjjjqqqquuueeeetttzzzzzuuubbbaaaaapppqqqqquutttttiiiiwwwwbbbbccc";
+    char str[MAX];
     char strCompressed[MAX];
+
+    FILE *file_in;
+	file_in = fopen("stringa.txt", "r");
+	fscanf(file_in,"%s", str);
+    fclose(file_in);
 
     char currentChar = str[0];
     int count = 1;
